@@ -3,11 +3,11 @@ package android.os;
 extern class Build
 {
 	@:native("VERSION")
-	public static var VERSION:Version;
+	static var VERSION:Version;
 }
 
 extern class Version
 {
 	@:native("SDK_INT")
-	public static var SDK_INT:Int;
+	static var SDK_INT:Int;
 }
