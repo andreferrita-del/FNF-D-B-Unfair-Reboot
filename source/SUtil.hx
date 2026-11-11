@@ -26,7 +26,7 @@ class SUtil
 	public static function check():Void
 	{
 		#if android
-		var sdkVersion:Int = VERSION.SDK_INT;
+		var sdkVersion:Int = android.os.BuildVersion.SDK_INT;
 
 		// Keep Android OS integration available.
 		if (sdkVersion >= 23)
