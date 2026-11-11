@@ -99,8 +99,8 @@ class DialogueBox extends FlxSpriteGroup
 
 	public function dialoguePath(file:String):String
 	{
-		var dialoguePath = SUtil.getPath() + Paths.file('assets/images/dialogue/portraits/$curCharacter/$file');
-		var truePath = SUtil.getPath() + Paths.file(file);
+		var dialoguePath = Paths.file('assets/images/dialogue/portraits/$curCharacter/$file');
+		var truePath = Paths.file(file);
 
 		// load the json file
 		if (sys.FileSystem.exists(dialoguePath))
