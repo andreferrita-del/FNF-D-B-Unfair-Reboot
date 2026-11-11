@@ -1,3 +1,4 @@
+
 package meta.data.dependency;
 
 import flixel.FlxG;
@@ -7,10 +8,6 @@ import flixel.graphics.frames.FlxTileFrames;
 import flixel.math.FlxPoint;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 
-/**
-	Global FNF sprite utilities, all in one parent class!
-	You'll be able to easily edit functions and such that are used by sprites
-**/
 class FNFSprite extends FlxSprite
 {
 	public var animOffsets:Map<String, Array<Dynamic>>;
@@ -22,28 +19,43 @@ class FNFSprite extends FlxSprite
 		animOffsets = new Map<String, Array<Dynamic>>();
 	}
 
-	public function playAnim(AnimName:String, Force:Bool = false, Reversed:Bool = false, Frame:Int = 0):Void
+	public function playAnim(
+		AnimName:String,
+		Force:Bool = false,
+		Reversed:Bool = false,
+		Frame:Int = 0
+	):Void
 	{
 		animation.play(AnimName, Force, Reversed, Frame);
 
 		var daOffset = animOffsets.get(AnimName);
+
 		if (animOffsets.exists(AnimName))
 		{
 			offset.set(daOffset[0], daOffset[1]);
 		}
 		else
+		{
 			offset.set(0, 0);
+		}
 	}
 
-	public function addOffset(name:String, x:Float = 0, y:Float = 0)
+	public function addOffset(name:String, x:Float = 0, y:Float = 0):Void
 	{
 		animOffsets[name] = [x, y];
 	}
 
-	override public function loadGraphic(Graphic:FlxGraphicAsset, Animated:Bool = false, Width:Int = 0, Height:Int = 0, Unique:Bool = false,
-			?Key:String):FNFSprite
+	override public function loadGraphic(
+		Graphic:FlxGraphicAsset,
+		Animated:Bool = false,
+		Width:Int = 0,
+		Height:Int = 0,
+		Unique:Bool = false,
+		?Key:String
+	):FNFSprite
 	{
-		var graph:FlxGraphic = (FlxG.bitmap.add(Graphic, Unique, Key));
+		var graph:FlxGraphic = FlxG.bitmap.add(Graphic, Unique, Key);
+
 		if (graph == null)
 			return this;
 
@@ -60,19 +72,26 @@ class FNFSprite extends FlxSprite
 		}
 
 		if (Animated)
-			frames = FlxTileFrames.fromGraphic(graph, FlxPoint.get(Width, Height));
+		{
+			frames = FlxTileFrames.fromGraphic(
+				graph,
+				FlxPoint.get(Width, Height)
+			);
+		}
 		else
+		{
 			frames = graph.imageFrame;
+		}
 
 		return this;
 	}
 
-	override public function destroy()
+	override public function destroy():Void
 	{
-		// dump cache stuffs
-		if (graphic != null)
-			graphic.dump();
-
+		// O gerenciamento do FlxGraphic fica sob responsabilidade
+		// do sistema de cache do HaxeFlixel.
 		super.destroy();
+
+		animOffsets = null;
 	}
 }
