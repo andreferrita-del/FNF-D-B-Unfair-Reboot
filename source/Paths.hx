@@ -206,9 +206,9 @@ static function getAssetPath(path:String, type:AssetType):String
                 bitmap = BitmapData.fromFile(path);
             }
             else if (assetExists(path, IMAGE))
-            {
-                bitmap = OpenFlAssets.getBitmapData(getAssetPath(path, IMAGE));
-            }
+{
+    bitmap = Assets.getBitmapData(getAssetPath(path, IMAGE));
+}
         }
         catch (e:Dynamic)
         {
@@ -296,17 +296,24 @@ static function getAssetPath(path:String, type:AssetType):String
 
         var sound:Sound = null;
 
-        try
-        {
-            if (FileSystem.exists(gottenPath))
-            {
-                sound = Sound.fromFile(gottenPath);
-            }
-            else if (assetExists(gottenPath, SOUND))
-            {
-                sound = OpenFlAssets.getSound(getAssetPath(gottenPath));
-            }
-        }
+       try
+{
+    if (FileSystem.exists(gottenPath))
+    {
+        sound = Sound.fromFile(gottenPath);
+    }
+    else if (assetExists(gottenPath, SOUND))
+    {
+        sound = OpenFlAssets.getSound(
+            getAssetPath(gottenPath, SOUND)
+        );
+    }
+}
+catch (e:Dynamic)
+{
+    trace('Erro carregando som $gottenPath: $e');
+    return null;
+}
         catch (e:Dynamic)
         {
             trace('Erro carregando som $gottenPath: $e');
