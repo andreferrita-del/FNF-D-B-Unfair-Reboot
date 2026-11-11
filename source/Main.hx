@@ -123,7 +123,6 @@ class Main extends Sprite
 			gameWidth,
 			gameHeight,
 			mainClassState,
-			zoom,
 			Std.int(framerate),
 			Std.int(framerate),
 			skipSplash
