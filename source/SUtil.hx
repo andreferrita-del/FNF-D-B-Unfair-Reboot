@@ -1,8 +1,6 @@
-
 package;
 
 #if android
-import android.os.Build.VERSION;
 import android.os.Environment;
 import openfl.utils.Assets as OpenFlAssets;
 #end
@@ -20,37 +18,25 @@ import sys.io.File;
 
 class SUtil
 {
-	/**
-	 * Android initialization without permission requests.
-	 */
 	public static function check():Void
 	{
 		#if android
-		var sdkVersion:Int = android.os.BuildVersion.SDK_INT;
+		var path:String = getPath();
 
-		// Keep Android OS integration available.
-		if (sdkVersion >= 23)
+		if (!FileSystem.exists(path))
 		{
-			var path:String = getPath();
-
-			if (!FileSystem.exists(path))
+			try
 			{
-				try
-				{
-					FileSystem.createDirectory(path);
-				}
-				catch (e:Dynamic)
-				{
-					trace('Could not create game directory: ' + e);
-				}
+				FileSystem.createDirectory(path);
+			}
+			catch (e:Dynamic)
+			{
+				trace('Storage directory error: ' + e);
 			}
 		}
 		#end
 	}
 
-	/**
-	 * Returns the game's external storage directory.
-	 */
 	public static function getPath():String
 	{
 		#if android
@@ -63,9 +49,6 @@ class SUtil
 		#end
 	}
 
-	/**
-	 * Uncaught error handler.
-	 */
 	public static function uncaughtErrorHandler():Void
 	{
 		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(
@@ -81,15 +64,14 @@ class SUtil
 					{
 						case FilePos(s, file, line, column):
 							errMsg += file + ' (line ' + line + ')\n';
-
 						default:
 							Sys.println(stackItem);
 					}
 				}
 
 				errMsg += u.error;
-
 				Sys.println(errMsg);
+
 				SUtil.applicationAlert('Error!', errMsg);
 
 				#if android
@@ -101,20 +83,14 @@ class SUtil
 						FileSystem.createDirectory(crashPath);
 
 					File.saveContent(
-						crashPath
-						+ Application.current.meta.get('file')
-						+ '_'
-						+ FlxStringUtil.formatTime(Sys.time(), true)
-						+ '.log',
+						crashPath + Application.current.meta.get('file')
+						+ '_' + FlxStringUtil.formatTime(Sys.time(), true) + '.log',
 						errMsg + '\n'
 					);
 				}
 				catch (e:Dynamic)
 				{
-					SUtil.applicationAlert(
-						'Error!',
-						"Couldn't save crash dump: " + e
-					);
+					SUtil.applicationAlert('Error!', 'Crash dump error: ' + e);
 				}
 				#end
 
@@ -129,10 +105,6 @@ class SUtil
 	}
 
 	#if android
-
-	/**
-	 * Save text content.
-	 */
 	public static function saveContent(
 		fileName:String = 'file',
 		fileExtension:String = '.json',
@@ -141,50 +113,32 @@ class SUtil
 	{
 		try
 		{
-			var saveDirectory:String = getPath() + 'saves/';
+			var directory:String = getPath() + 'saves/';
 
-			if (!FileSystem.exists(saveDirectory))
-				FileSystem.createDirectory(saveDirectory);
+			if (!FileSystem.exists(directory))
+				FileSystem.createDirectory(directory);
 
-			File.saveContent(
-				saveDirectory + fileName + fileExtension,
-				fileData
-			);
+			File.saveContent(directory + fileName + fileExtension, fileData);
 
 			applicationAlert('Done!', 'File Saved Successfully!');
 		}
 		catch (e:Dynamic)
 		{
-			applicationAlert(
-				'Error!',
-				"Couldn't save the file: " + e
-			);
+			applicationAlert('Error!', 'Save error: ' + e);
 		}
 	}
 
-	/**
-	 * Copy an asset to external storage.
-	 */
 	public static function copyContent(copyPath:String, savePath:String):Void
 	{
 		try
 		{
 			if (!FileSystem.exists(savePath))
-			{
-				File.saveBytes(
-					savePath,
-					OpenFlAssets.getBytes(copyPath)
-				);
-			}
+				File.saveBytes(savePath, OpenFlAssets.getBytes(copyPath));
 		}
 		catch (e:Dynamic)
 		{
-			applicationAlert(
-				'Error!',
-				"Couldn't copy the file: " + e
-			);
+			applicationAlert('Error!', 'Copy error: ' + e);
 		}
 	}
-
 	#end
 }
