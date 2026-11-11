@@ -184,19 +184,13 @@ class PlayState extends MusicBeatState
 		// create the game camera
 		// Initialize game camera
 camGame = new FlxCamera();
-camGame.bgColor = FlxColor.BLACK;
 
 camHUD = new FlxCamera();
-camHUD.bgColor = FlxColor.TRANSPARENT;
+camHUD.bgColor.alpha = 0;
 
 FlxG.cameras.reset(camGame);
 FlxG.cameras.add(camHUD, false);
-
-FlxG.camera = camGame;
-
-		uiHUD = new ClassHUD();
-add(uiHUD);
-uiHUD.cameras = [camHUD];
+		allUIs.push(camHUD);
 		// default song
 		if (SONG == null)
 			SONG = Song.loadFromJson('test', 'test');
