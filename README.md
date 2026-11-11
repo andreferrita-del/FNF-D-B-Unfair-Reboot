@@ -4,6 +4,8 @@ An open-source, quality of life and performance driven [Friday Night Funkin'](ht
 
 ![image](https://media.discordapp.net/attachments/916918345255751690/930068118938730526/legacy.png)
 
+[![CI - Android and Windows](https://github.com/andreferrita-del/FNF-D-B-Unfair-Reboot/actions/workflows/main.yml/badge.svg)](https://github.com/andreferrita-del/FNF-D-B-Unfair-Reboot/actions/workflows/main.yml)
+
 ----------------------------------------------
 The Friday Night Funkin' Forever Engine is an engine solely based on source code at the moment. Forever Engine is currently in legacy state as it is being rewritten. The legacy version of Forever Engine lacks accessibility and cohesion, something we are currently working to fix with the more newer and updated rewrite. Thank you for your patience.
 
