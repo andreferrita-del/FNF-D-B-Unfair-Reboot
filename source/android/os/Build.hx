@@ -1,17 +1,13 @@
 package android.os;
 
-class Build
+extern class Build
 {
-	public static var VERSION(default, null):Version;
-
-	static function __init__():Void
-	{
-		VERSION = new Version();
-	}
+	@:native("VERSION")
+	public static var VERSION:Version;
 }
 
-@:native("android.os.Build$VERSION")
 extern class Version
 {
-	public static var SDK_INT(default, null):Int;
+	@:native("SDK_INT")
+	public static var SDK_INT:Int;
 }
