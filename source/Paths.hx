@@ -4,7 +4,6 @@ package;
 import flixel.FlxG;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
-import lime.utils.Assets;
 import meta.CoolUtil;
 import openfl.display.BitmapData;
 import openfl.display3D.textures.Texture;
@@ -16,6 +15,7 @@ import sys.FileSystem;
 import sys.io.File;
 
 using StringTools;
+
 class Paths
 {
     inline public static var SOUND_EXT = "ogg";
@@ -34,6 +34,8 @@ class Paths
 
     public static var localTrackedAssets:Array<String> = [];
 
+    // CAMINHOS DE ASSETS
+
     static function normalize(path:String):String
     {
         return path.replace('\\', '/');
@@ -43,49 +45,37 @@ class Paths
     {
         path = normalize(path);
 
-        if (path.startsWith('assets/'))
-            path = path.substr(7);
-
-        return OpenFlAssets.exists(path, type);
-    }
-
-   static function assetExists(path:String, type:AssetType):Bool
-{
-    path = normalize(path);
-
-    // Primeiro tenta o identificador original do OpenFL.
-    if (OpenFlAssets.exists(path, type))
-        return true;
-
-    // Compatibilidade com bibliotecas que registram sem "assets/".
-    if (path.startsWith('assets/'))
-    {
-        var relativePath = path.substr(7);
-
-        if (OpenFlAssets.exists(relativePath, type))
+        if (OpenFlAssets.exists(path, type))
             return true;
+
+        if (path.startsWith('assets/'))
+        {
+            var relativePath = path.substr(7);
+
+            if (OpenFlAssets.exists(relativePath, type))
+                return true;
+        }
+
+        return false;
     }
 
-    return false;
-}
-
-static function getAssetPath(path:String, type:AssetType):String
-{
-    path = normalize(path);
-
-    if (OpenFlAssets.exists(path, type))
-        return path;
-
-    if (path.startsWith('assets/'))
+    static function getAssetPath(path:String, type:AssetType):String
     {
-        var relativePath = path.substr(7);
+        path = normalize(path);
 
-        if (OpenFlAssets.exists(relativePath, type))
-            return relativePath;
+        if (OpenFlAssets.exists(path, type))
+            return path;
+
+        if (path.startsWith('assets/'))
+        {
+            var relativePath = path.substr(7);
+
+            if (OpenFlAssets.exists(relativePath, type))
+                return relativePath;
+        }
+
+        return path;
     }
-
-    return path;
-}
 
     public static function setCurrentLevel(name:String):Void
     {
@@ -97,6 +87,8 @@ static function getAssetPath(path:String, type:AssetType):String
         if (!dumpExclusions.contains(key))
             dumpExclusions.push(key);
     }
+
+    // MEMÓRIA
 
     public static function clearUnusedMemory():Void
     {
@@ -144,7 +136,6 @@ static function getAssetPath(path:String, type:AssetType):String
 
     public static function clearStoredMemory(?cleanUnused:Bool = false):Void
     {
-        @:privateAccess
         var bitmapKeys:Array<String> = [];
 
         @:privateAccess
@@ -172,9 +163,7 @@ static function getAssetPath(path:String, type:AssetType):String
         for (key in soundKeys)
         {
             if (!localTrackedAssets.contains(key) && !dumpExclusions.contains(key))
-            {
                 currentTrackedSounds.remove(key);
-            }
         }
 
         localTrackedAssets = [];
@@ -206,9 +195,11 @@ static function getAssetPath(path:String, type:AssetType):String
                 bitmap = BitmapData.fromFile(path);
             }
             else if (assetExists(path, IMAGE))
-{
-    bitmap = Assets.getBitmapData(getAssetPath(path, IMAGE));
-}
+            {
+                bitmap = OpenFlAssets.getBitmapData(
+                    getAssetPath(path, IMAGE)
+                );
+            }
         }
         catch (e:Dynamic)
         {
@@ -226,7 +217,11 @@ static function getAssetPath(path:String, type:AssetType):String
 
         try
         {
-            if (textureCompression && FlxG.stage != null && FlxG.stage.context3D != null)
+            if (
+                textureCompression &&
+                FlxG.stage != null &&
+                FlxG.stage.context3D != null
+            )
             {
                 var texture = FlxG.stage.context3D.createTexture(
                     bitmap.width,
@@ -267,7 +262,10 @@ static function getAssetPath(path:String, type:AssetType):String
         catch (e:Dynamic)
         {
             trace('Erro criando gráfico $path: $e');
-            bitmap.dispose();
+
+            if (bitmap != null)
+                bitmap.dispose();
+
             return null;
         }
     }
@@ -296,24 +294,19 @@ static function getAssetPath(path:String, type:AssetType):String
 
         var sound:Sound = null;
 
-       try
-{
-    if (FileSystem.exists(gottenPath))
-    {
-        sound = Sound.fromFile(gottenPath);
-    }
-    else if (assetExists(gottenPath, SOUND))
-    {
-        sound = OpenFlAssets.getSound(
-            getAssetPath(gottenPath, SOUND)
-        );
-    }
-}
-catch (e:Dynamic)
-{
-    trace('Erro carregando som $gottenPath: $e');
-    return null;
-}
+        try
+        {
+            if (FileSystem.exists(gottenPath))
+            {
+                sound = Sound.fromFile(gottenPath);
+            }
+            else if (assetExists(gottenPath, SOUND))
+            {
+                sound = OpenFlAssets.getSound(
+                    getAssetPath(gottenPath, SOUND)
+                );
+            }
+        }
         catch (e:Dynamic)
         {
             trace('Erro carregando som $gottenPath: $e');
@@ -445,7 +438,11 @@ catch (e:Dynamic)
                 return File.getContent(resolvedPath);
 
             if (assetExists(resolvedPath, TEXT))
-                return OpenFlAssets.getBitmapData(getAssetPath(path, IMAGE));
+            {
+                return OpenFlAssets.getText(
+                    getAssetPath(resolvedPath, TEXT)
+                );
+            }
         }
         catch (e:Dynamic)
         {
@@ -494,7 +491,7 @@ catch (e:Dynamic)
         return returnSound('songs', songKey);
     }
 
-    // IMAGES
+    // IMAGENS
 
     public static function image(
         key:String,
@@ -535,7 +532,7 @@ catch (e:Dynamic)
 
         if (xmlData == null || xmlData.length == 0)
         {
-           // trace('Atlas sem XML: $xmlPath');
+            trace('Atlas sem XML: $xmlPath');
             return null;
         }
 
@@ -545,7 +542,7 @@ catch (e:Dynamic)
         }
         catch (e:Dynamic)
         {
-           // trace('Erro processando Sparrow $key: $e');
+            trace('Erro processando Sparrow $key: $e');
             return null;
         }
     }
@@ -560,7 +557,10 @@ catch (e:Dynamic)
         var graphic:FlxGraphic = returnGraphic(key, library);
 
         if (graphic == null)
+        {
+            trace('Packer sem imagem: $key');
             return null;
+        }
 
         var txtPath:String = getPath(
             'images/$key.txt',
@@ -572,7 +572,7 @@ catch (e:Dynamic)
 
         if (txtData == null || txtData.length == 0)
         {
-            trace('Packer NO TXT: $txtPath');
+            trace('Packer sem TXT: $txtPath');
             return null;
         }
 
