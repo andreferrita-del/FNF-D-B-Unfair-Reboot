@@ -23,7 +23,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@main
 
       - uses: krdlab/setup-haxe@master
         with:
@@ -48,7 +48,7 @@ jobs:
       - name: Compile
         run: haxelib run lime build Project.xml linux -release
       - name: Publish Artifact
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@main
         with:
           name: linuxBuild
           path: 'export/release/linux/bin'
@@ -57,7 +57,7 @@ jobs:
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2.3.0
+      - uses: actions/checkout@main
 
       - uses: krdlab/setup-haxe@master
         with:
@@ -83,7 +83,7 @@ jobs:
       - name: Compile
         run: haxelib run lime build windows -release
       - name: Publish Artifact
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@main
         with:
           name: windowsBuild
           path: export/release/windows/bin
@@ -92,7 +92,7 @@ jobs:
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@main
 
       - uses: krdlab/setup-haxe@master
         with:
@@ -117,7 +117,7 @@ jobs:
       - name: Compile
         run: haxelib run lime build mac -release
       - name: Publish Artifact
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@main
         with:
           name: macBuild
           path: export/release/macos/bin
@@ -126,7 +126,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.3.1
+        uses: actions/checkout@main
 
       - name: Setup Android NDK
         uses: nttld/setup-ndk@v1
@@ -140,7 +140,7 @@ jobs:
           java-version: 11
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
+        uses: android-actions/setup-android@main
 
       - name: Setup Haxe
         uses: krdlab/setup-haxe@master
@@ -178,7 +178,7 @@ jobs:
         run: haxelib run lime build android -release
 
       - name: Publish Artifact
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@main
         with:
           name: androidBuild
           path: export/release/android/bin/app/build/outputs/apk/debug 
