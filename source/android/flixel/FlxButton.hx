@@ -137,11 +137,14 @@ class FlxTypedButton<T:FlxSprite> extends FlxSprite implements IFlxInput
 		loadGraphic('flixel/images/ui/button.png', true, 80, 20);
 	}
 
-	function setupAnimation(animationName:String, frameIndex:Int):Void
-	{
-		frameIndex = Std.int(Math.min(frameIndex, animation.frames - 1));
-		animation.add(animationName, [frameIndex]);
-	}
+	
+function setupAnimation(animationName:String, frameIndex:Int):Void
+{
+	var totalFrames:Int = 3;
+	frameIndex = Std.int(Math.min(frameIndex, totalFrames - 1));
+	animation.add(animationName, [frameIndex]);
+}
+
 
 	override public function destroy():Void
 	{
