@@ -49,15 +49,43 @@ class Paths
         return OpenFlAssets.exists(path, type);
     }
 
-    static function getAssetPath(path:String):String
+   static function assetExists(path:String, type:AssetType):Bool
+{
+    path = normalize(path);
+
+    // Primeiro tenta o identificador original do OpenFL.
+    if (OpenFlAssets.exists(path, type))
+        return true;
+
+    // Compatibilidade com bibliotecas que registram sem "assets/".
+    if (path.startsWith('assets/'))
     {
-        path = normalize(path);
+        var relativePath = path.substr(7);
 
-        if (path.startsWith('assets/'))
-            path = path.substr(7);
-
-        return path;
+        if (OpenFlAssets.exists(relativePath, type))
+            return true;
     }
+
+    return false;
+}
+
+static function getAssetPath(path:String, type:AssetType):String
+{
+    path = normalize(path);
+
+    if (OpenFlAssets.exists(path, type))
+        return path;
+
+    if (path.startsWith('assets/'))
+    {
+        var relativePath = path.substr(7);
+
+        if (OpenFlAssets.exists(relativePath, type))
+            return relativePath;
+    }
+
+    return path;
+}
 
     public static function setCurrentLevel(name:String):Void
     {
@@ -179,7 +207,7 @@ class Paths
             }
             else if (assetExists(path, IMAGE))
             {
-                bitmap = OpenFlAssets.getBitmapData(getAssetPath(path));
+                bitmap = OpenFlAssets.getBitmapData(getAssetPath(path, IMAGE));
             }
         }
         catch (e:Dynamic)
@@ -410,7 +438,7 @@ class Paths
                 return File.getContent(resolvedPath);
 
             if (assetExists(resolvedPath, TEXT))
-                return OpenFlAssets.getText(getAssetPath(resolvedPath));
+                return OpenFlAssets.getBitmapData(getAssetPath(path, IMAGE));
         }
         catch (e:Dynamic)
         {
