@@ -1,3 +1,4 @@
+
 package;
 
 import flixel.FlxBasic;
@@ -26,33 +27,20 @@ import sys.FileSystem;
 import sys.io.File;
 import sys.io.Process;
 
-// Here we actually import the states and metadata, and just the metadata.
-// It's nice to have modularity so that we don't have ALL elements loaded at the same time.
-// at least that's how I think it works. I could be stupid!
 class Main extends Sprite
 {
-	// class action variables
-	public static var gameWidth:Int = 1280; // Width of the game in pixels (might be less / more in actual pixels depending on your zoom).
-	public static var gameHeight:Int = 720; // Height of the game in pixels (might be less / more in actual pixels depending on your zoom).
+	public static var gameWidth:Int = 1280;
+	public static var gameHeight:Int = 720;
 
-	public static var mainClassState:Class<FlxState> = Init; // Determine the main class state of the game
-	public static var framerate:Int = 120; // How many frames per second the game should run at.
+	public static var mainClassState:Class<FlxState> = Init;
+	public static var framerate:Int = 120;
 
 	public static var gameVersion:String = '0.3.1';
 
-	var zoom:Float = -1; // If -1, zoom is automatically calculated to fit the window dimensions.
-	var skipSplash:Bool = true; // Whether to skip the flixel splash screen that appears in release mode.
-	var infoCounter:Overlay; // initialize the heads up display that shows information before creating it.
+	var zoom:Float = -1;
+	var skipSplash:Bool = true;
+	var infoCounter:Overlay;
 
-	// heres gameweeks set up!
-
-	/**
-		Small bit of documentation here, gameweeks are what control everything in my engine
-		this system will eventually be overhauled in favor of using actual week folders within the 
-		assets.
-		Enough of that, here's how it works
-		[ [songs to use], [characters in songs], [color of week], name of week ]
-	**/
 	public static var gameWeeks:Array<Dynamic> = [
 		[['Tutorial'], ['gf'], [FlxColor.fromRGB(129, 100, 223)], 'Funky Beginnings'],
 		[
@@ -89,39 +77,27 @@ class Main extends Sprite
 			['Senpai', 'Roses', 'Thorns'],
 			['senpai', 'senpai', 'spirit'],
 			[FlxColor.fromRGB(206, 106, 169)],
-			"hating simulator ft. moawling"
+			'hating simulator ft. moawling'
 		],
 	];
-
-	// most of these variables are just from the base game!
-	// be sure to mess around with these if you'd like.
 
 	public static function main():Void
 	{
 		Lib.current.addChild(new Main());
 	}
 
-	// calls a function to set the game up
 	public function new()
 	{
 		super();
 
-		/**
-			ok so, haxe html5 CANNOT do 120 fps. it just cannot.
-			so here i just set the framerate to 60 if its complied in html5.
-			reason why we dont just keep it because the game will act as if its 120 fps, and cause
-			note studders and shit its weird.
-		**/
-
-		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onCrash);
+		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(
+			UncaughtErrorEvent.UNCAUGHT_ERROR,
+			onCrash
+		);
 
 		#if (html5 || neko)
 		framerate = 60;
 		#end
-
-		// simply said, a state is like the 'surface' area of the window where everything is drawn.
-		// if you've used gamemaker you'll probably understand the term surface better
-		// this defines the surface bounds
 
 		var stageWidth:Int = Lib.current.stage.stageWidth;
 		var stageHeight:Int = Lib.current.stage.stageHeight;
@@ -130,69 +106,73 @@ class Main extends Sprite
 		{
 			var ratioX:Float = stageWidth / gameWidth;
 			var ratioY:Float = stageHeight / gameHeight;
+
 			zoom = Math.min(ratioX, ratioY);
+
 			gameWidth = Math.ceil(stageWidth / zoom);
 			gameHeight = Math.ceil(stageHeight / zoom);
-			// this just kind of sets up the camera zoom in accordance to the surface width and camera zoom.
-			// if set to negative one, it is done so automatically, which is the default.
 		}
 
 		SUtil.check();
 
 		FlxTransitionableState.skipNextTransIn = true;
 
-		// here we set up the base game
 		var gameCreate:FlxGame;
-		gameCreate = new FlxGame(gameWidth, gameHeight, mainClassState, zoom, framerate, framerate, skipSplash);
-		addChild(gameCreate); // and create it afterwards
 
-		// default game FPS settings, I'll probably comment over them later.
-		// addChild(new FPS(10, 3, 0xFFFFFF));
+		gameCreate = new FlxGame(
+			gameWidth,
+			gameHeight,
+			mainClassState,
+			zoom,
+			Std.int(framerate),
+			Std.int(framerate),
+			skipSplash
+		);
 
-		// begin the discord rich presence
+		addChild(gameCreate);
+
 		#if DISCORD_RPC
 		Discord.initializeRPC();
 		Discord.changePresence('');
 		#end
 
-		// test initialising the player settings
 		PlayerSettings.init();
 
 		infoCounter = new Overlay(0, 0);
 		addChild(infoCounter);
 	}
 
-	public static function framerateAdjust(input:Float)
+	public static function framerateAdjust(input:Float):Float
 	{
 		return input * (60 / FlxG.drawFramerate);
 	}
 
-	/*  This is used to switch "rooms," to put it basically. Imagine you are in the main menu, and press the freeplay button.
-		That would change the game's main class to freeplay, as it is the active class at the moment.
-	 */
 	public static var lastState:FlxState;
 
-	public static function switchState(curState:FlxState, target:FlxState)
+	public static function switchState(curState:FlxState, target:FlxState):Void
 	{
-		// Custom made Trans in
 		mainClassState = Type.getClass(target);
+
 		if (!FlxTransitionableState.skipNextTransIn)
 		{
 			curState.openSubState(new FNFTransition(0.35, false));
+
 			FNFTransition.finishCallback = function()
 			{
 				FlxG.switchState(target);
 			};
-			return trace('changed state');
+
+			trace('changed state');
+			return;
 		}
+
 		FlxTransitionableState.skipNextTransIn = false;
-		// load the state
+
 		FlxG.switchState(target);
 	}
 
-	public static function updateFramerate(newFramerate:Int)
+	public static function updateFramerate(newFramerate:Int):Void
 	{
-		// flixel will literally throw errors at me if I dont separate the orders
 		if (newFramerate > FlxG.updateFramerate)
 		{
 			FlxG.updateFramerate = newFramerate;
@@ -209,6 +189,7 @@ class Main extends Sprite
 	{
 		var errMsg:String = "";
 		var path:String;
+
 		var callStack:Array<StackItem> = CallStack.exceptionStack(true);
 		var dateNow:String = Date.now().toString();
 
@@ -223,15 +204,19 @@ class Main extends Sprite
 			{
 				case FilePos(s, file, line, column):
 					errMsg += file + " (line " + line + ")\n";
+
 				default:
 					Sys.println(stackItem);
 			}
 		}
 
-		errMsg += "\nUncaught Error: " + e.error + "\nPlease report this error to the GitHub page: https://github.com/Yoshubs/Forever-Engine";
+		errMsg += "\nUncaught Error: " + e.error
+			+ "\nPlease report this error to the GitHub page: https://github.com/Yoshubs/Forever-Engine";
 
 		if (!FileSystem.exists(SUtil.getPath() + "crash/"))
+		{
 			FileSystem.createDirectory(SUtil.getPath() + "crash/");
+		}
 
 		File.saveContent(path, errMsg + "\n");
 
