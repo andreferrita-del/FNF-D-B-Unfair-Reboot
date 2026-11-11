@@ -24,7 +24,6 @@ import meta.data.dependency.Discord;
 import meta.data.font.Alphabet;
 import meta.state.menus.*;
 import openfl.Assets;
-import openfl.display.BitmapData;
 
 using StringTools;
 
@@ -65,39 +64,13 @@ class TitleState extends MusicBeatState
     }
 
     /**
-     * Carrega um atlas Sparrow diretamente dos assets OpenFL.
-     * Evita File.getContent(), que não funciona com arquivos
-     * XML empacotados dentro do APK.
+     * Usa o mesmo carregador de atlas do Alphabet.
+     * Isso mantém o carregamento de imagens e XML
+     * centralizado no Paths.hx.
      */
     function loadSparrowAtlas(name:String):FlxAtlasFrames
     {
-        var imagePath:String = 'images/' + name + '.png';
-        var xmlPath:String = 'images/' + name + '.xml';
-
-        try
-        {
-            if (!Assets.exists(imagePath) || !Assets.exists(xmlPath))
-            {
-                trace('Atlas não encontrado: ' + name);
-                return null;
-            }
-
-            var bitmap:BitmapData = Assets.getBitmapData(imagePath);
-            var xml:String = Assets.getText(xmlPath);
-
-            if (bitmap == null || xml == null || xml.length == 0)
-            {
-                trace('Atlas inválido: ' + name);
-                return null;
-            }
-
-            return FlxAtlasFrames.fromSparrow(bitmap, xml);
-        }
-        catch (e:Dynamic)
-        {
-            trace('Erro carregando atlas ' + name + ': ' + e);
-            return null;
-        }
+        return Paths.getSparrowAtlas(name);
     }
 
     function startIntro():Void
@@ -114,18 +87,27 @@ class TitleState extends MusicBeatState
         persistentUpdate = true;
 
         var bg:FlxSprite = new FlxSprite();
-        bg.makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
+        bg.makeGraphic(
+            FlxG.width,
+            FlxG.height,
+            FlxColor.BLACK
+        );
         add(bg);
 
         // LOGO
         logoBl = new FlxSprite(-150, -100);
 
-        var logoFrames = loadSparrowAtlas('menus/base/title/logoBumpin');
+        var logoFrames:FlxAtlasFrames =
+            loadSparrowAtlas('menus/base/title/logoBumpin');
 
         if (logoFrames != null)
         {
             logoBl.frames = logoFrames;
-            logoBl.animation.addByPrefix('bump', 'logo bumpin', 24);
+            logoBl.animation.addByPrefix(
+                'bump',
+                'logo bumpin',
+                24
+            );
             logoBl.animation.play('bump');
         }
 
@@ -133,9 +115,13 @@ class TitleState extends MusicBeatState
         logoBl.updateHitbox();
 
         // GIRLFRIEND
-        gfDance = new FlxSprite(FlxG.width * 0.4, FlxG.height * 0.07);
+        gfDance = new FlxSprite(
+            FlxG.width * 0.4,
+            FlxG.height * 0.07
+        );
 
-        var gfFrames = loadSparrowAtlas('menus/base/title/gfDanceTitle');
+        var gfFrames:FlxAtlasFrames =
+            loadSparrowAtlas('menus/base/title/gfDanceTitle');
 
         if (gfFrames != null)
         {
@@ -144,7 +130,10 @@ class TitleState extends MusicBeatState
             gfDance.animation.addByIndices(
                 'danceLeft',
                 'gfDance',
-                [30, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+                [
+                    30, 0, 1, 2, 3, 4, 5, 6,
+                    7, 8, 9, 10, 11, 12, 13, 14
+                ],
                 '',
                 24,
                 false
@@ -153,7 +142,10 @@ class TitleState extends MusicBeatState
             gfDance.animation.addByIndices(
                 'danceRight',
                 'gfDance',
-                [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29],
+                [
+                    15, 16, 17, 18, 19, 20, 21,
+                    22, 23, 24, 25, 26, 27, 28, 29
+                ],
                 '',
                 24,
                 false
@@ -163,13 +155,18 @@ class TitleState extends MusicBeatState
         }
 
         gfDance.antialiasing = true;
+
         add(gfDance);
         add(logoBl);
 
         // TITLE TEXT
-        titleText = new FlxSprite(100, FlxG.height * 0.8);
+        titleText = new FlxSprite(
+            100,
+            FlxG.height * 0.8
+        );
 
-        var titleFrames = loadSparrowAtlas('menus/base/title/titleEnter');
+        var titleFrames:FlxAtlasFrames =
+            loadSparrowAtlas('menus/base/title/titleEnter');
 
         if (titleFrames != null)
         {
@@ -192,6 +189,7 @@ class TitleState extends MusicBeatState
 
         titleText.antialiasing = true;
         titleText.updateHitbox();
+
         add(titleText);
 
         // CRÉDITOS
@@ -201,6 +199,7 @@ class TitleState extends MusicBeatState
         textGroup = new FlxGroup();
 
         blackScreen = new FlxSprite();
+
         blackScreen.makeGraphic(
             FlxG.width,
             FlxG.height,
@@ -225,25 +224,23 @@ class TitleState extends MusicBeatState
             FlxG.height * 0.52
         );
 
-        if (Assets.exists('images/menus/base/title/newgrounds_logo.png'))
-        {
-            ngSpr.loadGraphic(
-                Assets.getBitmapData('images/menus/base/title/newgrounds_logo.png')
-            );
-        }
-        else
-        {
-            ngSpr.loadGraphic(Paths.image('menus/base/title/newgrounds_logo'));
-        }
+        ngSpr.loadGraphic(
+            Paths.image('menus/base/title/newgrounds_logo')
+        );
 
         add(ngSpr);
 
         ngSpr.visible = false;
-        ngSpr.setGraphicSize(Std.int(ngSpr.width * 0.8));
+
+        ngSpr.setGraphicSize(
+            Std.int(ngSpr.width * 0.8)
+        );
+
         ngSpr.updateHitbox();
         ngSpr.screenCenter(X);
         ngSpr.antialiasing = true;
 
+        // ANIMAÇÃO DOS CRÉDITOS
         FlxTween.tween(
             credTextShit,
             {y: credTextShit.y + 20},
@@ -268,41 +265,37 @@ class TitleState extends MusicBeatState
     {
         var result:Array<Array<String>> = [];
 
-        var path:String = Paths.txt('introText');
+        var fullText:String =
+            Paths.getText(Paths.txt('introText'));
 
-        try
+        if (fullText != null && fullText.length > 0)
         {
-            if (Assets.exists(path))
+            for (line in fullText.split('\n'))
             {
-                var fullText:String = Assets.getText(path);
+                var cleanLine:String = line.trim();
 
-                for (line in fullText.split('\n'))
+                if (cleanLine.length == 0)
+                    continue;
+
+                var parts:Array<String> =
+                    cleanLine.split('--');
+
+                if (parts.length >= 2)
                 {
-                    var cleanLine:String = line.trim();
-
-                    if (cleanLine.length == 0)
-                        continue;
-
-                    var parts:Array<String> = cleanLine.split('--');
-
-                    if (parts.length >= 2)
-                    {
-                        result.push([
-                            parts[0].trim(),
-                            parts[1].trim()
-                        ]);
-                    }
+                    result.push([
+                        parts[0].trim(),
+                        parts[1].trim()
+                    ]);
                 }
             }
-        }
-        catch (e:Dynamic)
-        {
-            trace('Erro lendo introText: ' + e);
         }
 
         if (result.length == 0)
         {
-            result.push(['Forever Engine', 'Android Edition']);
+            result.push([
+                'Forever Engine',
+                'Android Edition'
+            ]);
         }
 
         return result;
@@ -311,9 +304,13 @@ class TitleState extends MusicBeatState
     override function update(elapsed:Float):Void
     {
         if (FlxG.sound.music != null)
-            Conductor.songPosition = FlxG.sound.music.time;
+        {
+            Conductor.songPosition =
+                FlxG.sound.music.time;
+        }
 
-        var pressedEnter:Bool = FlxG.keys.justPressed.ENTER;
+        var pressedEnter:Bool =
+            FlxG.keys.justPressed.ENTER;
 
         #if android
         for (touch in FlxG.touches.list)
@@ -326,7 +323,8 @@ class TitleState extends MusicBeatState
         }
         #end
 
-        var gamepad:FlxGamepad = FlxG.gamepads.lastActive;
+        var gamepad:FlxGamepad =
+            FlxG.gamepads.lastActive;
 
         if (gamepad != null)
         {
@@ -344,7 +342,10 @@ class TitleState extends MusicBeatState
             if (titleText.animation.getByName('press') != null)
                 titleText.animation.play('press');
 
-            FlxG.camera.flash(FlxColor.WHITE, 1);
+            FlxG.camera.flash(
+                FlxColor.WHITE,
+                1
+            );
 
             FlxG.sound.play(
                 Paths.sound('confirmMenu'),
@@ -353,10 +354,16 @@ class TitleState extends MusicBeatState
 
             transitioning = true;
 
-            new FlxTimer().start(2, function(tmr:FlxTimer)
-            {
-                Main.switchState(this, new MainMenuState());
-            });
+            new FlxTimer().start(
+                2,
+                function(tmr:FlxTimer)
+                {
+                    Main.switchState(
+                        this,
+                        new MainMenuState()
+                    );
+                }
+            );
         }
 
         if (pressedEnter && !skippedIntro && initialized)
@@ -420,7 +427,9 @@ class TitleState extends MusicBeatState
         super.beatHit();
 
         if (logoBl != null && logoBl.animation.getByName('bump') != null)
+        {
             logoBl.animation.play('bump');
+        }
 
         danceLeft = !danceLeft;
 
@@ -500,7 +509,10 @@ class TitleState extends MusicBeatState
             if (ngSpr != null)
                 remove(ngSpr);
 
-            FlxG.camera.flash(FlxColor.WHITE, 4);
+            FlxG.camera.flash(
+                FlxColor.WHITE,
+                4
+            );
 
             if (credGroup != null)
                 remove(credGroup);
