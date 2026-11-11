@@ -15,6 +15,7 @@ import openfl.utils.Assets as OpenFlAssets;
 import sys.FileSystem;
 import sys.io.File;
 
+using StringTools;
 class Paths
 {
     inline public static var SOUND_EXT = "ogg";
