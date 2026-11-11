@@ -63,41 +63,76 @@ class MusicBeatState extends FNFUIState
 	}
 
 	public function addAndroidControls()
-	{
-		androidControls = new AndroidControls();
+{
+    if (androidControls != null)
+        return;
 
-		switch (AndroidControls.getMode())
-		{
-			case 0 | 1 | 2: // RIGHT_FULL | LEFT_FULL | CUSTOM
-				controls.setVirtualPadNOTES(androidControls.virtualPad, RIGHT_FULL, NONE);
-			case 3: // BOTH_FULL
-				controls.setVirtualPadNOTES(androidControls.virtualPad, BOTH_FULL, NONE);
-			case 4: // HITBOX
-				controls.setHitBox(androidControls.hitbox);
-			case 5: // KEYBOARD
-		}
+    var mode:Int = AndroidControls.getMode();
 
-		trackedinputsNOTES = controls.trackedinputsNOTES;
-		controls.trackedinputsNOTES = [];
+    androidControls = new AndroidControls();
 
-		var camControls = new flixel.FlxCamera();
-		FlxG.cameras.add(camControls);
-		camControls.bgColor.alpha = 0;
+    switch (mode)
+    {
+        case 0: // RIGHT_FULL
+            if (androidControls.virtualPad != null)
+                controls.setVirtualPadNOTES(
+                    androidControls.virtualPad, RIGHT_FULL, NONE
+                );
 
-		androidControls.cameras = [camControls];
-		androidControls.visible = false;
-		add(androidControls);
-	}
+        case 1: // LEFT_FULL
+            if (androidControls.virtualPad != null)
+                controls.setVirtualPadNOTES(
+                    androidControls.virtualPad, LEFT_FULL, NONE
+                );
+
+        case 2: // CUSTOM
+            if (androidControls.virtualPad != null)
+                controls.setVirtualPadNOTES(
+                    androidControls.virtualPad, RIGHT_FULL, NONE
+                );
+
+        case 3: // BOTH_FULL
+            if (androidControls.virtualPad != null)
+                controls.setVirtualPadNOTES(
+                    androidControls.virtualPad, BOTH_FULL, NONE
+                );
+
+        case 4: // HITBOX
+            if (androidControls.hitbox != null)
+                controls.setHitBox(androidControls.hitbox);
+
+        case 5: // KEYBOARD
+    }
+
+    trackedinputsNOTES = controls.trackedinputsNOTES;
+    controls.trackedinputsNOTES = [];
+
+    var camControls = new flixel.FlxCamera();
+    camControls.bgColor.alpha = 0;
+
+    FlxG.cameras.add(camControls);
+
+    androidControls.cameras = [camControls];
+    androidControls.visible = false;
+
+    add(androidControls);
+}
 
 	public function removeAndroidControls()
-	{
-		if (trackedinputsNOTES != [])
-			controls.removeFlxInput(trackedinputsNOTES);
+{
+    if (trackedinputsNOTES != null && trackedinputsNOTES.length > 0)
+    {
+        controls.removeFlxInput(trackedinputsNOTES);
+        trackedinputsNOTES = [];
+    }
 
-		if (androidControls != null)
-			remove(androidControls);
-	}
-
+    if (androidControls != null)
+    {
+        remove(androidControls);
+        androidControls.destroy();
+        androidControls = null;
+    }
+}
 	public function addPadCamera()
 	{
 		if (virtualPad != null)
@@ -111,31 +146,37 @@ class MusicBeatState extends FNFUIState
 	#end
 
 	override function destroy()
-	{
-		#if android
-		if (trackedinputsNOTES != [])
-			controls.removeFlxInput(trackedinputsNOTES);
+{
+    #if android
+    if (trackedinputsNOTES != null && trackedinputsNOTES.length > 0)
+    {
+        controls.removeFlxInput(trackedinputsNOTES);
+        trackedinputsNOTES = [];
+    }
 
-		if (trackedinputsUI != [])
-			controls.removeFlxInput(trackedinputsUI);
-		#end
+    if (trackedinputsUI != null && trackedinputsUI.length > 0)
+    {
+        controls.removeFlxInput(trackedinputsUI);
+        trackedinputsUI = [];
+    }
 
-		super.destroy();
+    if (androidControls != null)
+    {
+        remove(androidControls);
+        androidControls.destroy();
+        androidControls = null;
+    }
 
-		#if android
-		if (virtualPad != null)
-		{
-			virtualPad = FlxDestroyUtil.destroy(virtualPad);
-			virtualPad = null;
-		}
+    if (virtualPad != null)
+    {
+        remove(virtualPad);
+        virtualPad.destroy();
+        virtualPad = null;
+    }
+    #end
 
-		if (androidControls != null)
-		{
-			androidControls = FlxDestroyUtil.destroy(androidControls);
-			androidControls = null;
-		}
-		#end
-	}
+    super.destroy();
+}
 
 	// class create event
 	override function create()
