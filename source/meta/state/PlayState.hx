@@ -182,14 +182,20 @@ class PlayState extends MusicBeatState
 			FlxG.sound.music.stop();
 
 		// create the game camera
-		camGame = new FlxCamera();
+		// Initialize game camera
+camGame = new FlxCamera();
+camGame.bgColor = FlxColor.BLACK;
 
-		// create the hud camera (separate so the hud stays on screen)
-		camHUD = new FlxCamera();
-		camHUD.bgColor.alpha = 0;
+// Initialize HUD camera
+camHUD = new FlxCamera();
+camHUD.bgColor = FlxColor.TRANSPARENT;
 
-		FlxG.cameras.reset(camGame);
-		FlxG.cameras.add(camHUD, false);
+// Register cameras
+FlxG.cameras.reset(camGame);
+FlxG.cameras.add(camHUD, false);
+
+// Set default camera
+FlxG.camera = camGame;
 
 		// default song
 		if (SONG == null)
@@ -1834,7 +1840,7 @@ class PlayState extends MusicBeatState
 
 	function callTextbox()
 	{
-		var dialogPath = SUtil.getPath() + Paths.json(SONG.song.toLowerCase() + '/dialogue');
+		var dialogPath = Paths.json(SONG.song.toLowerCase() + '/dialogue');
 		if (sys.FileSystem.exists(dialogPath))
 		{
 			startedCountdown = false;
