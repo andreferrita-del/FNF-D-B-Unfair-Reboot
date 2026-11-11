@@ -7,7 +7,7 @@ package gameObjects;
 import flixel.FlxG;
 import flixel.addons.util.FlxSimplex;
 import flixel.animation.FlxBaseAnimation;
-import flixel.graphics.frames.FlxAtlasFrames;
+import flixel.graphics.frames.FlxFramesCollection;
 import gameObjects.userInterface.HealthIcon;
 import meta.*;
 import meta.data.*;
@@ -47,7 +47,7 @@ class Character extends FNFSprite
 	public function setCharacter(x:Float, y:Float, character:String):Character
 	{
 		curCharacter = character;
-		var tex:FlxAtlasFrames;
+		var tex:FlxFramesCollection;
 		antialiasing = true;
 
 		characterData = {
