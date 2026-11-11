@@ -193,6 +193,10 @@ FlxG.cameras.reset(camGame);
 FlxG.cameras.add(camHUD, false);
 
 FlxG.camera = camGame;
+
+		uiHUD = new ClassHUD();
+add(uiHUD);
+uiHUD.cameras = [camHUD];
 		// default song
 		if (SONG == null)
 			SONG = Song.loadFromJson('test', 'test');
