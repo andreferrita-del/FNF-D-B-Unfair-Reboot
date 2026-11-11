@@ -59,23 +59,36 @@ class CoolUtil
 		return swagOffsets;
 	}
 
-	public static function returnAssetsLibrary(library:String, ?subDir:String = 'assets/images'):Array<String>
-	{
-		var libraryArray:Array<String> = [];
+	public static function returnAssetsLibrary(library:String):Array<String>
+{
+    var results:Array<String> = [];
 
-		#if sys
-		var unfilteredLibrary = FileSystem.readDirectory('$subDir/$library');
+    #if android
+    var path = 'assets/$library';
 
-		for (folder in unfilteredLibrary)
-		{
-			if (!folder.contains('.'))
-				libraryArray.push(folder);
-		}
-		trace(libraryArray);
-		#end
+    if (Assets.exists(path))
+    {
+        // Os assets do APK não são diretórios físicos.
+        // Não usar FileSystem.readDirectory() aqui.
+        return results;
+    }
+    #else
+    var subDir = "assets";
 
-		return libraryArray;
-	}
+    if (FileSystem.exists('$subDir/$library'))
+    {
+        var unfilteredLibrary = FileSystem.readDirectory('$subDir/$library');
+
+        for (file in unfilteredLibrary)
+        {
+            if (!FileSystem.isDirectory('$subDir/$library/$file'))
+                results.push(file);
+        }
+    }
+    #end
+
+    return results;
+}
 
 	public static function getAnimsFromTxt(path:String):Array<Array<String>>
 	{
