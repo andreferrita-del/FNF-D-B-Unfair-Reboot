@@ -1449,45 +1449,70 @@ add(strumLines);
 		}
 	}
 
-	private function generateSong(dataPath:String):Void
-	{
-		// FlxG.log.add(ChartParser.parse());
+	
+private function generateSong(dataPath:String):Void
+{
+    trace("TESTE 1: generateSong iniciou");
 
-		var songData = SONG;
-		Conductor.changeBPM(songData.bpm);
+    var songData = SONG;
 
-		// String that contains the mode defined here so it isn't necessary to call changePresence for each mode
-		songDetails = CoolUtil.dashToSpace(SONG.song) + ' - ' + CoolUtil.difficultyFromNumber(storyDifficulty);
+    if (songData == null)
+        throw "SONG está null";
 
-		// String for when the game is paused
-		detailsPausedText = "Paused - " + songDetails;
+    trace("TESTE 2: SONG acessado");
 
-		// set details for song stuffs
-		detailsSub = "";
+    trace("TESTE 3: BPM = " + songData.bpm);
+    Conductor.changeBPM(songData.bpm);
 
-		// Updating Discord Rich Presence.
-		updateRPC(false);
+    trace("TESTE 4: BPM carregado");
 
-		curSong = songData.song;
-		songMusic = new FlxSound().loadEmbedded(Paths.inst(SONG.song), false, true);
+    songDetails = CoolUtil.dashToSpace(SONG.song)
+        + ' - '
+        + CoolUtil.difficultyFromNumber(storyDifficulty);
 
-		if (SONG.needsVoices)
-			vocals = new FlxSound().loadEmbedded(Paths.voices(SONG.song), false, true);
-		else
-			vocals = new FlxSound();
+    detailsPausedText = "Paused - " + songDetails;
+    detailsSub = "";
 
-		FlxG.sound.list.add(songMusic);
-		FlxG.sound.list.add(vocals);
+    updateRPC(false);
 
-		// generate the chart
-		unspawnNotes = ChartLoader.generateChartType(SONG, determinedChartType);
-		// sometime my brain farts dont ask me why these functions were separated before
+    curSong = songData.song;
 
-		// sort through them
-		unspawnNotes.sort(sortByShit);
-		// give the game the heads up to be able to start
-		generatedMusic = true;
-	}
+    trace("TESTE 5: carregando instrumental");
+    songMusic = new FlxSound().loadEmbedded(
+        Paths.inst(SONG.song), false, true
+    );
+
+    trace("TESTE 6: instrumental carregado");
+
+    if (SONG.needsVoices)
+    {
+        trace("TESTE 7: carregando vozes");
+        vocals = new FlxSound().loadEmbedded(
+            Paths.voices(SONG.song), false, true
+        );
+    }
+    else
+        vocals = new FlxSound();
+
+    trace("TESTE 8: vozes carregadas");
+
+    FlxG.sound.list.add(songMusic);
+    FlxG.sound.list.add(vocals);
+
+    trace("TESTE 9: gerando notas");
+
+    unspawnNotes = ChartLoader.generateChartType(
+        SONG, determinedChartType
+    );
+
+    trace("TESTE 10: notas geradas = " + unspawnNotes.length);
+
+    unspawnNotes.sort(sortByShit);
+
+    trace("TESTE 11: notas ordenadas");
+
+    generatedMusic = true;
+}
 
 	function sortByShit(Obj1:Note, Obj2:Note):Int
 		return FlxSort.byValues(FlxSort.ASCENDING, Obj1.strumTime, Obj2.strumTime);
