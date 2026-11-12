@@ -337,7 +337,7 @@ add(strumLines);
 		FlxG.cameras.add(dialogueHUD);
 
 		#if android
-		//addAndroidControls();
+		addAndroidControls();
 		#end
 
 		//
