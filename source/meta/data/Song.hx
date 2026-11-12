@@ -2,7 +2,9 @@
 package meta.data;
 
 import haxe.Json;
-import haxe.format.JsonParser;
+import openfl.utils.Assets;
+import sys.FileSystem;
+import sys.io.File;
 import meta.data.Section.SwagSection;
 
 using StringTools;
@@ -49,42 +51,66 @@ class Song
         if (folder == null || folder.length == 0)
             folder = jsonInput;
 
-        var songName:String = folder.toLowerCase();
-        var chartName:String = jsonInput.toLowerCase();
+        var songName = folder.toLowerCase();
+        var chartName = jsonInput.toLowerCase();
 
-        var chartPath:String = Paths.songJson(
-            songName,
-            chartName
-        );
+        var chartPath = Paths.songJson(songName, chartName);
 
-        var rawJson:String = Paths.getText(chartPath);
+        var rawJson:String = null;
 
-        if (rawJson == null || rawJson.trim().length == 0)
+        try
         {
-            throw 'Chart não encontrado ou vazio: ' + chartPath;
+            if (FileSystem.exists(chartPath))
+            {
+                rawJson = File.getContent(chartPath);
+            }
+            else
+            {
+                var assetPath = chartPath;
+
+                if (assetPath.startsWith('assets/'))
+                    assetPath = assetPath.substr(7);
+
+                if (Assets.exists(assetPath))
+                    rawJson = Assets.getText(assetPath);
+                else if (Assets.exists(chartPath))
+                    rawJson = Assets.getText(chartPath);
+            }
+        }
+        catch (e:Dynamic)
+        {
+            throw 'Erro ao carregar chart "$chartPath": $e';
         }
 
-        rawJson = rawJson.trim();
-
-        // Remove caracteres extras depois do JSON.
-        var lastBrace:Int = rawJson.lastIndexOf('}');
-
-        if (lastBrace == -1)
-            throw 'JSON inválido: ' + chartPath;
-
-        rawJson = rawJson.substr(0, lastBrace + 1);
+        if (rawJson == null || rawJson.trim().length == 0)
+            throw 'Chart não encontrado ou vazio: $chartPath';
 
         return parseJSONshit(rawJson);
     }
 
     public static function parseJSONshit(rawJson:String):SwagSong
     {
-        var parsed:Dynamic = Json.parse(rawJson);
+        var parsed:Dynamic;
+
+        try
+        {
+            parsed = Json.parse(rawJson.trim());
+        }
+        catch (e:Dynamic)
+        {
+            throw 'Erro ao interpretar JSON da música: $e';
+        }
 
         if (parsed == null || parsed.song == null)
             throw 'Formato de chart inválido: propriedade song ausente';
 
         var swagShit:SwagSong = cast parsed.song;
+
+        if (swagShit.notes == null)
+            throw 'Chart inválido: propriedade notes ausente';
+
+        if (swagShit.speed <= 0)
+            swagShit.speed = 1;
 
         swagShit.validScore = true;
 
